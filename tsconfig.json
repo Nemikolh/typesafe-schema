@@ -12,10 +12,10 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "moduleResolution": "node",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "skipLibCheck": true
     },
     "include": [
-        "src/**/*.ts",
-        "tests/**/*.ts"
+        "src/**/*.ts"
     ]
 }
