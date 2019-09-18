@@ -1,8 +1,15 @@
 language: node_js
 node_js:
-  - 10
+- 10
 script:
-  - yarn run build
-  - yarn run lint
-  - yarn run dtslint
-  - yarn run test
+- yarn run build
+- yarn run lint
+- yarn run dtslint
+- yarn run test
+deploy:
+  provider: npm
+  edge: true
+  api_token:
+    secure: UaGyp39/i6V9VLK3OuCF3oRTyAR8mfUqniRpRgj6U+QlZM3WcWF44h7xc34TuMvKws7wD+brFLQx6vYNcKERqeljVOYln+JZUJkxA/m70zhMgaoKJ9Ckwr6XV17xzcbMxLxoxL4/WUoUb8ICthWB+2arKUtnicHbPmptbh4F/PWtA2Ofg40TxrQnYmCwdassr4oN0rzV57TP2gHriG4ZI9gQd26CtqxFSpl4vsN1lIpTYBbrvCy6ZMv6ifHI8A6a0NWF5FNeI7Hor4Qx6HQEhWzePRChCjyjuMiwhrSmieGPFwf0M87uGcIAqbZmzk8wuUxC9Pe/QPWHiu49ZU0HiwHTaA3OpVpTwHLpaZYoCC/9kYvZtD8tJ/0sfZyuY8mBZmjsUEmuprwvq/+EMguperYVMTaT7aRSW+YCpc5po7JUAr95bwM06yLUrLvg+WtVcxLas8+trspkjfsc/gsc89ucSSo1zTM8QUS0Dd4ARfcXBWOkE1yEJurouZ6wPm2J9XLv7AUIQw7zZyVleyK4UZbmOdPwN5p/63VUrUC/tL4vW4OclyYtlo61Q0Lh/DJgdl5+EfBRPV+d1Nn+3uUIjHGP0CD+WeYMTU+aDULvcBudaWNHdfKmhauqtqV7E1k32bH34I0aleW4wNZOj3t1n8ClLjBrC3jl59H65kLxmNw=
+  on:
+    tags: true
