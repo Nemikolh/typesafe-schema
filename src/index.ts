@@ -132,7 +132,9 @@ class BooleanType extends SchemaType<boolean> {}
 class IgnoreType extends SchemaType<unknown> {}
 class StringType extends SchemaType<string> {}
 class MatchRegexType extends SchemaType<string> { constructor(public regex: RegExp) { super(); } }
-class StringValType<S extends string> extends SchemaType<S> { constructor(public val: S) { super(); }}
+class ValType<V> extends SchemaType<V> { constructor(public val: V) { super(); } }
+class StringValType<S extends string> extends ValType<S> { constructor(val: S) { super(val); } }
+class NumberValType<N extends number> extends ValType<N> { constructor(val: N) { super(val); } }
 class InterfaceType<P, O> extends SchemaType<O> { constructor(public props: P) { super(); } }
 class NullableType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class MaybeUndefinedType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
@@ -275,6 +277,32 @@ export function MatchRegex(regex: RegExp): MatchRegexType {
 }
 
 /**
+ * This validator only accept one value. It narrows down the type
+ * to the string literal type associated to the provided value.
+ *
+ * Note:
+ *
+ *   - This only works if the value is a raw string. Anything else
+ *     will be inferred as `string`.
+ */
+export function Str<T extends string>(value: T): StringValType<T> {
+    return new StringValType(value);
+}
+
+/**
+ * This validator only accept one value. It narrows down the type
+ * to the numeric literal type associated to the provided value.
+ *
+ * Note:
+ *
+ *   - This only works if the value is a raw number. Anything else
+ *     will be inferred as `number`.
+ */
+export function Num<T extends number>(value: T): NumberValType<T> {
+    return new NumberValType(value);
+}
+
+/**
  * When using IGNORE, no validation is performed, so the typescript inferred
  * type is `unknown`.
  */
@@ -311,7 +339,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
     if (typeofVal === 'undefined') {
         return error(path, 'value is undefined');
     }
-    if (schema instanceof StringValType) {
+    if (schema instanceof ValType) {
         return iferror(schema.val === value, path, `Got '${value}', expected '${schema.val}'`);
     }
     if (schema instanceof MatchRegexType) {

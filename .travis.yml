@@ -4,4 +4,5 @@ node_js:
 script:
   - yarn run build
   - yarn run lint
+  - yarn run dtslint
   - yarn run test

@@ -1,0 +1,17 @@
+{
+    "extends": "dtslint/dtslint.json",
+    "rules": {
+        "semicolon": false,
+        "array-type": false,
+        "no-unnecessary-generics": false,
+        "no-useless-files": false,
+        "no-duplicate-imports": false,
+        "no-unnecessary-class": false,
+        "no-empty-interface": false,
+        "prefer-object-spread": false,
+        "radix": false,
+        "member-access": false,
+        "no-arg": false,
+        "whitespace": false
+    }
+}
