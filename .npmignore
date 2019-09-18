@@ -1,4 +1,5 @@
 /tests/
+/dtslint/
 .travis.yml
 jest.config.js
 tsconfig.json
