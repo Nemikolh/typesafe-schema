@@ -94,7 +94,29 @@ function doRequest() {
 }
 ```
 
-Schema can also be reused without having an extra
+Schema can also be reused:
+
+```ts
+import { Enum, Arr, Obj, STRING, NUMBER, Str } from 'typesafe-schema';
+import { newValidator } from 'typesafe-schema';
+
+export const user = newValidator(Obj({
+    id: NUMBER,
+    name: STRING,
+    role: Enum('admin', 'regular', 'bot'),
+    apiKey: Optional(STRING),
+}));
+
+// Each element in the list must satisfy the user schema.
+export const userList = newValidator(Arr(user.schema));
+
+// They can be reused anywhere...
+export const device = newValidator(Obj({
+    id: NUMBER,
+    hostname: STRING,
+    owner: user.schema,
+}));
+```
 
 ## Reference
 
