@@ -1,10 +1,10 @@
-import { defineSchema, Enum, EnumObj, Obj, Arr, MatchRegex } from '../src';
+import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex } from '../src';
 import { STRING, NUMBER } from '../src';
 
 describe('Enum', () => {
 
     it('should match string for a specific value', () => {
-        const schema = defineSchema(Enum('test'));
+        const schema = newValidator(Enum('test'));
         expect(schema('test')).toEqual({ type: 'success', value: 'test' });
         expect(schema('tata')).toEqual({
             type: 'error',
@@ -17,7 +17,7 @@ describe('Enum', () => {
     });
 
     it('should match string in a list of values', () => {
-        const schema = defineSchema(Enum('test', 'foo', 'bar'));
+        const schema = newValidator(Enum('test', 'foo', 'bar'));
         expect(schema('test')).toEqual({ type: 'success', value: 'test' });
         expect(schema('foo')).toEqual({ type: 'success', value: 'foo' });
         expect(schema('bar')).toEqual({ type: 'success', value: 'bar' });
@@ -37,7 +37,7 @@ describe('Enum', () => {
 describe('MatchRegex', () => {
 
     it('should validate the value with the regex provided', () => {
-        const schema = defineSchema(MatchRegex(/\s+/));
+        const schema = newValidator(MatchRegex(/\s+/));
         expect(schema('test')).toEqual({
             type: 'error',
             path: '',
@@ -49,7 +49,7 @@ describe('MatchRegex', () => {
 
 describe('EnumObj', () => {
 
-    const schema = defineSchema(EnumObj(Obj({
+    const schema = newValidator(EnumObj(Obj({
         ID: NUMBER,
         Foo: STRING,
     }), Obj({
@@ -143,7 +143,7 @@ describe('EnumObj', () => {
 
 describe('Array of enum object', () => {
 
-    const schema = defineSchema(Arr(EnumObj(Obj({
+    const schema = newValidator(Arr(EnumObj(Obj({
         Foo: STRING,
     }), Obj({
         Test: NUMBER,

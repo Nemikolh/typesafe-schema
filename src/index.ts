@@ -192,7 +192,7 @@ export type SchemaValidationResult<T> = { type: 'success', value: T } | Validati
  * @param schema schema defined as a POJO with some convention.
  */
 export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
-    const validator: SchemaValidator<T> = (value) => {
+    const validator: SchemaValidator<T> = ((value) => {
         const res = validateObject(value, schema, '');
         if (res.type === 'error') {
             return res;
@@ -201,7 +201,7 @@ export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
             type: 'success',
             value,
         };
-    };
+    }) as SchemaValidator<T>;
     validator.schema = schema;
     return validator;
 }

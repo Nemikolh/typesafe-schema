@@ -1,4 +1,4 @@
-# Typesafe-schema [![Build Status](https://travis-ci.org/Nemikolh/typesafe-schema.svg?branch=master)](https://travis-ci.org/Nemikolh/typesafe-schema)
+# Typesafe-schema [![Build Status](https://travis-ci.org/Nemikolh/typesafe-schema.svg?branch=master)](https://travis-ci.org/Nemikolh/typesafe-schema) ![](https://img.shields.io/badge/TypeScript-%3E3.0-green)
 
 Typesafe-schema allows you to validate a plain old JavaScript object against
 a schema and obtained a well typed value in return.
