@@ -24,16 +24,16 @@ yarn add -S -E typesafe-schema
 
 ## Usage
 
-Typesafe-schema provide more type safety if you have your `strict` flag set to
+Typesafe-schema provide more type safety if your TypeScript `strict` flag is set to
 `true` in your `tsconfig.json`. You can still use this library without this option,
-but some schema modifiers such as `Optional` and `Nullable` won't provide you any
-benefit from a type checking point of view.
+but some schema modifiers such as `Optional` and `Nullable` loose their benefit from
+a type checking point of view.
 
 An example is always worth a thousand words:
 
 ```ts
 import { EnumObj, Obj, STRING, NUMBER, Str } from 'typesafe-schema';
-import { defineSchema } from 'typesafe-schema';
+import { newValidator } from 'typesafe-schema';
 
 
 // Our API can returns either a JSON object
@@ -52,7 +52,7 @@ import { defineSchema } from 'typesafe-schema';
 //          "message": "Invalid username or password"
 //      }
 //
-const myAPI = defineSchema(EnumObj(
+const myAPI = newValidator(EnumObj(
     Obj({
         result: Str('success'),
         token: STRING,
@@ -93,6 +93,8 @@ function doRequest() {
     }
 }
 ```
+
+Schema can also be reused without having an extra
 
 ## Reference
 
