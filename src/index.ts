@@ -175,7 +175,7 @@ interface ValidationError {
 type ValidationResult = ValidationSuccess | ValidationError;
 
 export interface SchemaValidator<T extends Any> {
-    (value: any): SchemaValidationResult<TypeOf<T>>;
+    (value: any, strict?: boolean): SchemaValidationResult<TypeOf<T>>;
     schema: T
 }
 export type SchemaValidationResult<T> = { type: 'success', value: T } | ValidationError;
@@ -192,8 +192,8 @@ export type SchemaValidationResult<T> = { type: 'success', value: T } | Validati
  * @param schema schema defined as a POJO with some convention.
  */
 export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
-    const validator: SchemaValidator<T> = ((value) => {
-        const res = validateObject(value, schema, '');
+    const validator: SchemaValidator<T> = ((value, strict) => {
+        const res = validateObject(value, schema, '', strict || false);
         if (res.type === 'error') {
             return res;
         }
@@ -330,7 +330,7 @@ export const NUMBER = new NumberType();
 
 
 // The runtime function doing all the hard-work (all the above is only compile-time shenanigans)
-function validateObject<T extends Any>(value: any, schema: T, path: string): ValidationResult {
+function validateObject<T extends Any>(value: any, schema: T, path: string, strict: boolean): ValidationResult {
     const typeofVal = typeof value;
     if (schema === IGNORE) {
         return success();
@@ -339,7 +339,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
         if (typeofVal === 'undefined') {
             return success();
         }
-        return validateObject(value, schema.schema, path + '!');
+        return validateObject(value, schema.schema, path + '!', strict);
     }
     if (typeofVal === 'undefined') {
         return error(path, 'value is undefined');
@@ -357,7 +357,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
     if (schema instanceof EnumType) {
         const possibleResults = [];
         for (const subSchema of schema.possibleValues) {
-            const res = validateObject(value, subSchema, path);
+            const res = validateObject(value, subSchema, path, strict);
             if (res.type === 'success') {
                 return res;
             }
@@ -373,7 +373,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
         if (value === null) {
             return success();
         }
-        return validateObject(value, schema.schema, path + '?');
+        return validateObject(value, schema.schema, path + '?', strict);
     }
     if (schema === STRING) {
         return iferror(typeofVal === 'string', path, `Got ${typeofVal}, expected string`);
@@ -390,7 +390,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
         }
 
         for (let index = 0; index < value.length; ++index) {
-            const res = validateObject(value[index], schema.elementSchema, path + '[' + index + ']');
+            const res = validateObject(value[index], schema.elementSchema, path + '[' + index + ']', strict);
             if (res.type === 'error') {
                 return res;
             }
@@ -401,10 +401,18 @@ function validateObject<T extends Any>(value: any, schema: T, path: string): Val
         if (value === null) {
             return error(path, `Expected object got 'null'`);
         }
+        // Strict mode: no extra properties allowed.
+        if (strict && typeof value === 'object') {
+            for (const prop in value) {
+                if (!(prop in schema.props)) {
+                    return error(path, `Extra property '${prop}' rejected in strict mode.`);
+                }
+            }
+        }
         // Properties that are not in schema are ignored
         for (const prop in schema.props) {
             if (prop in value || schema.props[prop] instanceof MaybeUndefinedType) {
-                const res = validateObject(value[prop], schema.props[prop], path + '.' + prop);
+                const res = validateObject(value[prop], schema.props[prop], path + '.' + prop, strict);
                 if (res.type === 'error') {
                     return res;
                 }

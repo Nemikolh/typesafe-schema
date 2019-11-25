@@ -22,6 +22,10 @@ With yarn:
 yarn add -S -E typesafe-schema
 ```
 
+## API
+
+ * `newValidator(schema: T) => (value: any, strict?: bool) => Result<TypeOf<T>>`
+
 ## Usage
 
 Typesafe-schema provide more type safety if your TypeScript `strict` flag is set to
@@ -71,7 +75,8 @@ function doRequest() {
     // At this point data is "any"
     const data = ajax(...);
 
-    // Validate the data
+    // Validate the data, an optional 'strict' argument can
+    // be provided to reject value that have extra properties
     const result = myAPI(data);
 
     if (result.type === 'success') {
