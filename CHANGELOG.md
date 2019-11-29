@@ -1,5 +1,9 @@
 # Version 0.2.3
 
+ * Bug fix. Missing `TypeOf` in export.
+
+# Version 0.2.3
+
  * Bug fix. Missing `Any` in export.
 
 # Version 0.2.2
