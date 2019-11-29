@@ -15,10 +15,10 @@
     },
     "devDependencies": {
         "@types/jest": "24.0.18",
-        "dtslint": "0.9.8",
+        "dtslint": "2.0.2",
         "jest": "24.9.0",
         "ts-jest": "24.1.0",
         "tslint": "5.20.0",
-        "typescript": "3.6.3"
+        "typescript": "3.7.2"
     }
 }

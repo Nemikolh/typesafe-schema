@@ -143,7 +143,7 @@ class EnumType<E, O> extends SchemaType<O> { constructor(public possibleValues: 
 
 // Type utils
 export interface Any extends SchemaType<any> {}    // Not needed but make the code more readable
-type TypeOf<C extends Any> = C['_O'];       // The most important function
+export type TypeOf<C extends Any> = C['_O'];       // The most important function
 interface Props {
     [key: string]: Any
 }
@@ -259,7 +259,7 @@ export function Nullable<T extends Any>(schema: T): NullableC<T> {
  * //                                ~~~~ This brace means that we expect a defined
  * //                                |    object with either a property named 'b' that maps to string or undefined,
  * //                                v    or an empty object.
- * export const a = defineSchema(Obj({
+ * export const a = newValidator(Obj({
  *     b: Optional(String),
  * }));
  * ```

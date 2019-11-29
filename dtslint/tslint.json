@@ -12,6 +12,9 @@
         "radix": false,
         "member-access": false,
         "no-arg": false,
-        "whitespace": false
+        "whitespace": false,
+        "no-sparse-arrays": false,
+        "object-literal-key-quotes": false,
+        "one-line": false
     }
 }
