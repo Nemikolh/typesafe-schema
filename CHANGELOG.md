@@ -1,3 +1,10 @@
+# Version 0.3.0
+
+ * Version 0.2 was fundamentaly broken, this release fix a number of issues:
+    - Possibility to constraint the resulting type
+    - Default it to TypeOf<T>
+    - Add a test to make sure this is not broken in the future.
+
 # Version 0.2.3
 
  * Bug fix. Missing `TypeOf` in export.

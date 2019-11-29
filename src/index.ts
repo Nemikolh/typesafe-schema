@@ -174,8 +174,8 @@ interface ValidationError {
 }
 type ValidationResult = ValidationSuccess | ValidationError;
 
-export interface SchemaValidator<T extends Any> {
-    (value: any, strict?: boolean): SchemaValidationResult<TypeOf<T>>;
+export interface SchemaValidator<T extends Any, G extends TypeOf<T> = TypeOf<T>> {
+    (value: any, strict?: boolean): SchemaValidationResult<G>;
     schema: T
 }
 export type SchemaValidationResult<T> = { type: 'success', value: T } | ValidationError;

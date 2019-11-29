@@ -15,6 +15,7 @@
         "whitespace": false,
         "no-sparse-arrays": false,
         "object-literal-key-quotes": false,
-        "one-line": false
+        "one-line": false,
+        "prefer-const": false
     }
 }

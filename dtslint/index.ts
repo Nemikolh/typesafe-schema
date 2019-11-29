@@ -1,4 +1,4 @@
-import { newValidator } from '../src';
+import { newValidator, TypeOf, Any, SchemaValidator } from '../src';
 import { Nullable, IGNORE, NUMBER, BOOL, STRING, Enum } from '../src';
 import { EnumObj, Optional, Obj, Arr, Str } from '../src';
 
@@ -120,4 +120,21 @@ function t13() {
         // $ExpectType { test: string; foo: number; } | { tata: string; }
         const a = val.value;
     }
+}
+
+// Expressing constraints on the generated type
+function t14<T extends Any, G extends TypeOf<T> & any[]>(
+    arg: SchemaValidator<T, G>
+): G[0] {
+    const val = arg(null);
+    if (val.type === 'success') {
+        return val.value[0];
+    }
+    return null;
+}
+
+function t15() {
+    const schema = newValidator(Arr(Obj({ a: STRING, b: NUMBER })));
+    // $ExpectType { a: string; b: number; }
+    const val = t14(schema);
 }
