@@ -1,3 +1,7 @@
+# Version 0.2.3
+
+ * Bug fix. Missing `Any` in export.
+
 # Version 0.2.2
 
  * Add a `strict` argument to validators that reject value that have extra properties.

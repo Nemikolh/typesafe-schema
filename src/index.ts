@@ -142,7 +142,7 @@ class ArrayType<E, O> extends SchemaType<O> { constructor(public elementSchema: 
 class EnumType<E, O> extends SchemaType<O> { constructor(public possibleValues: E) { super(); } }
 
 // Type utils
-interface Any extends SchemaType<any> {}    // Not needed but make the code more readable
+export interface Any extends SchemaType<any> {}    // Not needed but make the code more readable
 type TypeOf<C extends Any> = C['_O'];       // The most important function
 interface Props {
     [key: string]: Any
