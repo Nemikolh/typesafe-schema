@@ -174,8 +174,9 @@ interface ValidationError {
 }
 type ValidationResult = ValidationSuccess | ValidationError;
 
+export type Validator<T> = (value: any, strict?: boolean) => SchemaValidationResult<T>;
 export interface SchemaValidator<T extends Any, G extends TypeOf<T> = TypeOf<T>> {
-    (value: any, strict?: boolean): SchemaValidationResult<G>;
+    validate: Validator<G>
     schema: T
 }
 export type SchemaValidationResult<T> = { type: 'success', value: T } | ValidationError;
@@ -192,7 +193,7 @@ export type SchemaValidationResult<T> = { type: 'success', value: T } | Validati
  * @param schema schema defined as a POJO with some convention.
  */
 export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
-    const validator: SchemaValidator<T> = ((value, strict) => {
+    const validate: Validator<TypeOf<T>> = (value, strict) => {
         const res = validateObject(value, schema, '', strict || false);
         if (res.type === 'error') {
             return res;
@@ -201,9 +202,11 @@ export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
             type: 'success',
             value,
         };
-    }) as SchemaValidator<T>;
-    validator.schema = schema;
-    return validator;
+    };
+    return {
+        validate,
+        schema,
+    };
 }
 
 /**

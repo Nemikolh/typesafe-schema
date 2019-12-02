@@ -1,3 +1,9 @@
+# Version 0.4.0
+
+ * Instead of a function we now return an object with two properties:
+    - `validator.validate()`: A function that can validate objects.
+    - `validator.schema`: The original schema used by the validate function.
+
 # Version 0.3.0
 
  * Version 0.2 was fundamentaly broken, this release fix a number of issues:

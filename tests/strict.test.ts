@@ -8,8 +8,8 @@ describe('Strict mode', () => {
             B: NUMBER,
         }));
 
-        expect(schema({ A: 'Test', B: 234}, true)).toMatchObject({ type: 'success' });
-        expect(schema({ A: 'Test', B: 234, C: 'test' }, true)).toEqual({
+        expect(schema.validate({ A: 'Test', B: 234}, true)).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Test', B: 234, C: 'test' }, true)).toEqual({
             type: 'error',
             path: '',
             reason: `Extra property 'C' rejected in strict mode.`,
@@ -22,10 +22,10 @@ describe('Strict mode', () => {
             Obj({ A: STRING, C: NUMBER }),
         ));
 
-        expect(schema({ A: 'Test', B: 234 }, true)).toMatchObject({ type: 'success' });
-        expect(schema({ A: 'Foo', C: 234 }, true)).toMatchObject({ type: 'success' });
-        expect(schema({ A: 'Foo', B: 123, C: 234 }, true)).toMatchObject({ type: 'error' });
-        expect(schema({ A: 'Foo', B: 123, C: 234 }, false)).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Test', B: 234 }, true)).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Foo', C: 234 }, true)).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Foo', B: 123, C: 234 }, true)).toMatchObject({ type: 'error' });
+        expect(schema.validate({ A: 'Foo', B: 123, C: 234 }, false)).toMatchObject({ type: 'success' });
     });
 
     it('default value for strict mode should be false', () => {
@@ -34,8 +34,8 @@ describe('Strict mode', () => {
             Obj({ A: STRING, C: NUMBER }),
         ));
 
-        expect(schema({ A: 'Foo', B: 123, C: 234 }, true)).toMatchObject({ type: 'error' });
-        expect(schema({ A: 'Foo', B: 123, C: 234 }, false)).toMatchObject({ type: 'success' });
-        expect(schema({ A: 'Foo', B: 123, C: 234 })).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Foo', B: 123, C: 234 }, true)).toMatchObject({ type: 'error' });
+        expect(schema.validate({ A: 'Foo', B: 123, C: 234 }, false)).toMatchObject({ type: 'success' });
+        expect(schema.validate({ A: 'Foo', B: 123, C: 234 })).toMatchObject({ type: 'success' });
     });
 });

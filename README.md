@@ -24,7 +24,7 @@ yarn add -S -E typesafe-schema
 
 ## API
 
- * `newValidator(schema: T) => (value: any, strict?: bool) => Result<TypeOf<T>>`
+ * `newValidator(schema: T) => { validate: (value: any, strict?: bool) => Result<TypeOf<T>>, schema }`
 
 ## Usage
 
@@ -77,7 +77,7 @@ function doRequest() {
 
     // Validate the data, an optional 'strict' argument can
     // be provided to reject value that have extra properties
-    const result = myAPI(data);
+    const result = myAPI.validate(data);
 
     if (result.type === 'success') {
 
@@ -126,7 +126,7 @@ export const device = newValidator(Obj({
 ## Reference
 
 
-| Function                               | TypeScript              | What does `validator(value);` do ?                                                                                        |
+| Function                               | TypeScript              | What does `validator.validate(value);` do ?                                                                                        |
 |----------------------------------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------|
 | `IGNORE`                               | `unknown`               | Do nothing, value will have the unknown TypeScript type                                                                   |
 | `STRING`                               | `string`                | Make sure value is a string (use `typeof`)                                                                                |

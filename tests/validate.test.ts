@@ -5,8 +5,8 @@ describe('Enum', () => {
 
     it('should match string for a specific value', () => {
         const schema = newValidator(Enum('test'));
-        expect(schema('test')).toEqual({ type: 'success', value: 'test' });
-        expect(schema('tata')).toEqual({
+        expect(schema.validate('test')).toEqual({ type: 'success', value: 'test' });
+        expect(schema.validate('tata')).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -18,10 +18,10 @@ describe('Enum', () => {
 
     it('should match string in a list of values', () => {
         const schema = newValidator(Enum('test', 'foo', 'bar'));
-        expect(schema('test')).toEqual({ type: 'success', value: 'test' });
-        expect(schema('foo')).toEqual({ type: 'success', value: 'foo' });
-        expect(schema('bar')).toEqual({ type: 'success', value: 'bar' });
-        expect(schema('tata')).toEqual({
+        expect(schema.validate('test')).toEqual({ type: 'success', value: 'test' });
+        expect(schema.validate('foo')).toEqual({ type: 'success', value: 'foo' });
+        expect(schema.validate('bar')).toEqual({ type: 'success', value: 'bar' });
+        expect(schema.validate('tata')).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -38,12 +38,12 @@ describe('MatchRegex', () => {
 
     it('should validate the value with the regex provided', () => {
         const schema = newValidator(MatchRegex(/\s+/));
-        expect(schema('test')).toEqual({
+        expect(schema.validate('test')).toEqual({
             type: 'error',
             path: '',
             reason: `'test' did not match '/\\s+/'`,
         });
-        expect(schema('    \n  ')).toEqual({ type: 'success', value: '    \n  ' });
+        expect(schema.validate('    \n  ')).toEqual({ type: 'success', value: '    \n  ' });
     });
 });
 
@@ -59,7 +59,7 @@ describe('EnumObj', () => {
 
 
     it('should match a valid object for variant 1', () => {
-        expect(schema({ ID: 0, Foo: 'tmp' })).toEqual({
+        expect(schema.validate({ ID: 0, Foo: 'tmp' })).toEqual({
             type: 'success',
             value: {
                 ID: 0,
@@ -69,7 +69,7 @@ describe('EnumObj', () => {
     });
 
     it('should match a valid object for variant 2', () => {
-        expect(schema({ Bar: 'test', Test: 'test' })).toEqual({
+        expect(schema.validate({ Bar: 'test', Test: 'test' })).toEqual({
             type: 'success',
             value: {
                 Bar: 'test',
@@ -79,7 +79,7 @@ describe('EnumObj', () => {
     });
 
     it('should match a valid object for variant 2 (2)', () => {
-        expect(schema({ Bar: '', Test: 'foobar' })).toEqual({
+        expect(schema.validate({ Bar: '', Test: 'foobar' })).toEqual({
             type: 'success',
             value: {
                 Bar: '',
@@ -89,7 +89,7 @@ describe('EnumObj', () => {
     });
 
     it('should not accept an object where the value does not match the type of the variant 2', () => {
-        expect(schema({ Bar: '', Test: 'oops' })).toEqual({
+        expect(schema.validate({ Bar: '', Test: 'oops' })).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -103,7 +103,7 @@ describe('EnumObj', () => {
     });
 
     it('should not accept an object where the value is missing a prop of the variant 2', () => {
-        expect(schema({ Bar: '' })).toEqual({
+        expect(schema.validate({ Bar: '' })).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -116,7 +116,7 @@ describe('EnumObj', () => {
 
     it('should not accept an object where the value is of the wrong type for variant 1', () => {
 
-        expect(schema({ ID: '', Foo: '' })).toEqual({
+        expect(schema.validate({ ID: '', Foo: '' })).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -128,7 +128,7 @@ describe('EnumObj', () => {
     });
 
     it('should not accept an object with a missing property for variant 1', () => {
-        expect(schema({ ID: 0 })).toEqual({
+        expect(schema.validate({ ID: 0 })).toEqual({
             type: 'error',
             path: '',
             reason: [
@@ -152,12 +152,12 @@ describe('Array of enum object', () => {
 
     it('should accept a valid object', () => {
         const value = [{ Foo: 'test' }, { Test: 0, Bar: 'foo' }];
-        expect(schema(value)).toEqual({ type: 'success', value });
+        expect(schema.validate(value)).toEqual({ type: 'success', value });
     });
 
     it('should reject an array with an invalid property', () => {
         const value = [{ Test: 0, Bar: 'foo' }, { Oops: 'test' }];
-        expect(schema(value)).toEqual({
+        expect(schema.validate(value)).toEqual({
             type: 'error',
             path: '[1]',
             reason: [

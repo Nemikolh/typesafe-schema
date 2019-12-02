@@ -6,38 +6,38 @@ import { EnumObj, Optional, Obj, Arr, Str } from '../src';
 
 function t7() {
     // $ExpectType SchemaValidationResult<number>
-    const val = newValidator(NUMBER)(null);
+    const val = newValidator(NUMBER).validate(null);
 }
 
 function t8() {
     // $ExpectType SchemaValidationResult<boolean>
-    const val = newValidator(BOOL)(null);
+    const val = newValidator(BOOL).validate(null);
 }
 
 function t9() {
     // $ExpectType SchemaValidationResult<string>
-    const val = newValidator(STRING)(null);
+    const val = newValidator(STRING).validate(null);
 }
 
 function t10() {
     // $ExpectType SchemaValidationResult<string | null>
-    const val = newValidator(Nullable(STRING))(null);
+    const val = newValidator(Nullable(STRING)).validate(null);
 }
 
 function t11() {
     // $ExpectType SchemaValidationResult<unknown>
-    const val = newValidator(IGNORE)(null);
+    const val = newValidator(IGNORE).validate(null);
 }
 
 function t12() {
     // $ExpectType SchemaValidationResult<"a" | "b" | "c">
-    const val = newValidator(Enum('a', 'b', 'c'))(null);
+    const val = newValidator(Enum('a', 'b', 'c')).validate(null);
 }
 
 // Advanced schema
 
 function t1() {
-    const val = newValidator(Obj({ a: STRING, b: NUMBER }))(null);
+    const val = newValidator(Obj({ a: STRING, b: NUMBER })).validate(null);
     if (val.type === 'success') {
         // $ExpectType string
         val.value.a;
@@ -47,7 +47,7 @@ function t1() {
 }
 
 function t2() {
-    const val = newValidator(Obj({ a: Optional(STRING), b: NUMBER }))(null);
+    const val = newValidator(Obj({ a: Optional(STRING), b: NUMBER })).validate(null);
     if (val.type === 'success') {
         // $ExpectType string | undefined
         val.value.a;
@@ -57,7 +57,7 @@ function t2() {
 }
 
 function t3() {
-    const val = newValidator(EnumObj(Obj({ a: STRING }), Obj({ a: NUMBER })))(null);
+    const val = newValidator(EnumObj(Obj({ a: STRING }), Obj({ a: NUMBER }))).validate(null);
     if (val.type === 'success') {
         const a = val.value;
         // $ExpectType string | number
@@ -66,7 +66,7 @@ function t3() {
 }
 
 function t4() {
-    const val = newValidator(EnumObj(Obj({ b: STRING }), Obj({ a: NUMBER })))(null);
+    const val = newValidator(EnumObj(Obj({ b: STRING }), Obj({ a: NUMBER }))).validate(null);
     if (val.type === 'success') {
         const a = val.value;
         if ('b' in a) {
@@ -80,7 +80,7 @@ function t4() {
 }
 
 function t5() {
-    const val = newValidator(Arr(Obj({ b: STRING, a: Arr(Obj({ ID: NUMBER })) })))(null);
+    const val = newValidator(Arr(Obj({ b: STRING, a: Arr(Obj({ ID: NUMBER })) }))).validate(null);
     if (val.type === 'success') {
         const a = val.value;
         // $ExpectType string
@@ -101,7 +101,7 @@ function t6() {
             errCode: NUMBER,
             message: STRING,
         }),
-    ))(null);
+    )).validate(null);
     if (val.type === 'success') {
         // $ExpectType { type: "success"; message: string; } | { type: "error"; errCode: number; message: string; }
         const a = val.value;
@@ -115,7 +115,7 @@ function t13() {
     const schema2 = newValidator(Obj({ tata: STRING }));
     const composed = newValidator(EnumObj(schema1.schema, schema2.schema));
 
-    const val = composed(null);
+    const val = composed.validate(null);
     if (val.type === 'success') {
         // $ExpectType { test: string; foo: number; } | { tata: string; }
         const a = val.value;
@@ -126,7 +126,7 @@ function t13() {
 function t14<T extends Any, G extends TypeOf<T> & any[]>(
     arg: SchemaValidator<T, G>
 ): G[0] {
-    const val = arg(null);
+    const val = arg.validate(null);
     if (val.type === 'success') {
         return val.value[0];
     }
