@@ -1,3 +1,7 @@
+# Version 0.4.2
+
+ * Remove coverage report from the npm package.
+
 # Version 0.4.1
 
  * Export `ValidationSuccess`, `ValidationError` and `ValidationResult` types.
