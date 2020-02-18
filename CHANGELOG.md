@@ -1,3 +1,7 @@
+# Version 0.4.1
+
+ * Export `ValidationSuccess`, `ValidationError` and `ValidationResult` types.
+
 # Version 0.4.0
 
  * Instead of a function we now return an object with two properties:

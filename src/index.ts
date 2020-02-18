@@ -166,13 +166,13 @@ interface EnumStringC<S extends [string, ...string[]]> extends EnumType<ArrayTyp
 
 
 // Validation types
-interface ValidationSuccess { type: 'success' }
-interface ValidationError {
+export interface ValidationSuccess { type: 'success' }
+export interface ValidationError {
     type: 'error'
     path: string
     reason: string
 }
-type ValidationResult = ValidationSuccess | ValidationError;
+export type ValidationResult = ValidationSuccess | ValidationError;
 
 export type Validator<T> = (value: any, strict?: boolean) => SchemaValidationResult<T>;
 export interface SchemaValidator<T extends Any, G extends TypeOf<T> = TypeOf<T>> {
