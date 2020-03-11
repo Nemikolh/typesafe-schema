@@ -140,6 +140,23 @@ describe('EnumObj', () => {
     });
 });
 
+describe('Obj', () => {
+
+    const schema = newValidator(Obj({}));
+
+    it('should reject string and numbers when expecting an object', () => {
+        expect(schema.validate('test')).toEqual({
+            type: 'error',
+            path: '',
+            reason: `Expected object got 'string'`,
+        });
+        expect(schema.validate(2342)).toEqual({
+            type: 'error',
+            path: '',
+            reason: `Expected object got 'number'`,
+        });
+    });
+});
 
 describe('Array of enum object', () => {
 

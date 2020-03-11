@@ -1,3 +1,8 @@
+# Version 0.4.3
+
+ * Fix a bug when an `Obj` is expected but a string is provided to the `validate` function.
+   Error was `TypeError: Cannot use 'in' operator to search for 'message' in "Not found"`;
+
 # Version 0.4.2
 
  * Remove coverage report from the npm package.

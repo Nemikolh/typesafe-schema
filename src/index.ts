@@ -404,8 +404,11 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         if (value === null) {
             return error(path, `Expected object got 'null'`);
         }
+        if (typeofVal !== 'object') {
+            return error(path, `Expected object got '${typeofVal}'`);
+        }
         // Strict mode: no extra properties allowed.
-        if (strict && typeof value === 'object') {
+        if (strict) {
             for (const prop in value) {
                 if (!(prop in schema.props)) {
                     return error(path, `Extra property '${prop}' rejected in strict mode.`);
