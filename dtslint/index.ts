@@ -1,4 +1,4 @@
-import { newValidator, TypeOf, Any, SchemaValidator } from '../src';
+import { newValidator, TypeOf, Any, SchemaValidator, TRUE, FALSE } from '../src';
 import { Nullable, IGNORE, NUMBER, BOOL, STRING, Enum } from '../src';
 import { EnumObj, Optional, Obj, Arr, Str } from '../src';
 
@@ -12,6 +12,16 @@ function t7() {
 function t8() {
     // $ExpectType SchemaValidationResult<boolean>
     const val = newValidator(BOOL).validate(null);
+}
+
+function t8a() {
+    // $ExpectType SchemaValidationResult<true>
+    const val = newValidator(TRUE).validate(null);
+}
+
+function t8b() {
+    // $ExpectType SchemaValidationResult<false>
+    const val = newValidator(FALSE).validate(null);
 }
 
 function t9() {

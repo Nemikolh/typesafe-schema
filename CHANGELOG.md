@@ -1,3 +1,7 @@
+# Version 0.4.4
+
+ * Add `TRUE` and `FALSE` constant to allow narrowing a type with boolean values
+
 # Version 0.4.3
 
  * Fix a bug when an `Obj` is expected but a string is provided to the `validate` function.

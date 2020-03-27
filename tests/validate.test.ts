@@ -1,4 +1,4 @@
-import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex } from '../src';
+import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE } from '../src';
 import { STRING, NUMBER } from '../src';
 
 describe('Enum', () => {
@@ -44,6 +44,18 @@ describe('MatchRegex', () => {
             reason: `'test' did not match '/\\s+/'`,
         });
         expect(schema.validate('    \n  ')).toEqual({ type: 'success', value: '    \n  ' });
+    });
+});
+
+describe('TRUE,FALSE', () => {
+
+    it('should validate a value to be exactly true or false', () => {
+        const schema = newValidator(TRUE);
+        const schema2 = newValidator(FALSE);
+        expect(schema.validate(true)).toMatchObject({ type: 'success' });
+        expect(schema.validate(false)).toMatchObject({ type: 'error' });
+        expect(schema2.validate(false)).toMatchObject({ type: 'success' });
+        expect(schema2.validate(true)).toMatchObject({ type: 'error' });
     });
 });
 
