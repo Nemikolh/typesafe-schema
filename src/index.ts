@@ -311,6 +311,16 @@ export function Num<T extends number>(value: T): NumberValType<T> {
 }
 
 /**
+ * For boolean values equal to true
+ */
+export const TRUE = new ValType<true>(true);
+
+/**
+ * For boolean values equal to false.
+ */
+export const FALSE = new ValType<false>(false);
+
+/*
  * When using IGNORE, no validation is performed, so the typescript inferred
  * type is `unknown`.
  */
