@@ -14,10 +14,10 @@
         "test": "jest"
     },
     "devDependencies": {
-        "@types/jest": "24.0.25",
+        "@types/jest": "25.1.4",
         "dtslint": "2.0.2",
-        "jest": "24.9.0",
-        "ts-jest": "24.3.0",
+        "jest": "25.2.3",
+        "ts-jest": "25.2.1",
         "tslint": "5.20.1",
         "typescript": "3.7.4"
     }
