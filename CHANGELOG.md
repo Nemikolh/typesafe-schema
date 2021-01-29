@@ -1,3 +1,7 @@
+# Version 0.4.5
+
+ * Add support for dictionaries: arbitrary keys with a validated type.
+
 # Version 0.4.4
 
  * Add `TRUE` and `FALSE` constant to allow narrowing a type with boolean values

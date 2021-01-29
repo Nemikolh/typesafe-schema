@@ -1,4 +1,4 @@
-import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE } from '../src';
+import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict } from '../src';
 import { STRING, NUMBER } from '../src';
 
 describe('Enum', () => {
@@ -196,4 +196,36 @@ describe('Array of enum object', () => {
             ].join('\n'),
         });
     });
+});
+
+describe('Dictionary', () => {
+
+    const schema = newValidator(Dict(Obj({ a: Enum('foo', 'bar') })));
+
+    it('should accept a valid dictionary', () => {
+        const value = {
+            'some prop': { a: 'foo' },
+            'other prop': { a: 'bar' },
+        };
+
+        expect(schema.validate(value)).toEqual({ type: 'success', value });
+    });
+
+    it('should reject an invalid one when the element type doesn\'t match', () => {
+        const value = {
+            'some prop': { a: 'foo' },
+            'other prop': { a: 'wut' },
+        };
+
+        expect(schema.validate(value)).toEqual({ 
+            type: 'error',
+            path: '[other prop].a',
+            reason: [
+                'None of the variant matched "wut", errors:',
+                `  Got 'wut', expected 'foo'`,
+                `  Got 'wut', expected 'bar'`,
+            ].join('\n')
+        });
+    });
+
 });

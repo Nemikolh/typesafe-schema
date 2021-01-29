@@ -139,6 +139,7 @@ class InterfaceType<P, O> extends SchemaType<O> { constructor(public props: P) {
 class NullableType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class MaybeUndefinedType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class ArrayType<E, O> extends SchemaType<O> { constructor(public elementSchema: E) { super(); } }
+class DictType<E, O> extends SchemaType<O> { constructor(public elementSchema: E) { super(); } }
 class EnumType<E, O> extends SchemaType<O> { constructor(public possibleValues: E) { super(); } }
 
 // Type utils
@@ -152,6 +153,7 @@ interface Props {
 interface NullableC<E extends Any> extends NullableType<E, TypeOf<E> | null> {}
 interface MaybeUndefinedC<E extends Any> extends MaybeUndefinedType<E, TypeOf<E> | undefined> {}
 interface ArrayC<E extends Any> extends ArrayType<E, TypeOf<E>[]> {}
+interface DictC<E extends Any> extends DictType<E, { [key: string]: TypeOf<E> }> {}
 interface TypeC<P extends Props> extends InterfaceType<P, { [K in keyof P]: TypeOf<P[K]> }> {}
 // Note: Replace that once typescript support cleaner variadic types
 interface EnumC<E extends [Any, ...Any[]]> extends EnumType<E, E extends [Any] ? TypeOf<E[0]>
@@ -190,7 +192,7 @@ export type SchemaValidationResult<T> = { type: 'success', value: T } | Validati
  *   - The validator does not perform any parsing. Use something like `JSON.parse` first.
  *   - The data source doesn't need to be JSON, but the parsed version needs to be a POJO.
  *
- * @param schema schema defined as a POJO with some convention.
+ * @param schema schema desribing the shape of the valid data
  */
 export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
     const validate: Validator<TypeOf<T>> = (value, strict) => {
@@ -210,8 +212,7 @@ export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
 }
 
 /**
- * Define the type of a value to a restricted set of strings.
- *
+ * Define a schema of a value restricted to a set of strings.
  * @param possibleValues list of string that the result might have.
  */
 export function Enum<U extends [string, ...string[]]>(...possibleValues: U): EnumStringC<U> {
@@ -219,15 +220,24 @@ export function Enum<U extends [string, ...string[]]>(...possibleValues: U): Enu
 }
 
 /**
- * Define a type and schema that must be an array
- * @param arr type of the element in the array
+ * Define a schema for arrays where elements must match `element`.
+ * @param element type of the element in the array
  */
-export function Arr<E extends Any>(arr: E): ArrayC<E> {
-    return new ArrayType(arr);
+export function Arr<E extends Any>(element: E): ArrayC<E> {
+    return new ArrayType(element);
 }
 
 /**
- * Define a type and schema that must have a set of properties
+ * Define a schema that expect a dictionary with arbitrary string keys
+ * and with values matching `element`
+ * @param element
+ */
+export function Dict<E extends Any>(element: E): DictC<E> {
+    return new DictType(element);
+}
+
+/**
+ * Define a schema that must have a statically known number of properties
  * @param props properties that the schema must have
  */
 export function Obj<P extends Props>(props: P): TypeC<P> {
@@ -247,7 +257,6 @@ export function EnumObj<U extends [Any, ...Any[]]>(...possibleValues: U): EnumC<
 
 /**
  * After validation, the value can either be of type validated by `T` or `null`.
- *
  * @param schema non-null value.
  */
 export function Nullable<T extends Any>(schema: T): NullableC<T> {
@@ -255,7 +264,7 @@ export function Nullable<T extends Any>(schema: T): NullableC<T> {
 }
 
 /**
- * This validator can only be used within an object and is used to mark
+ * This schema constructor can only be used within an `Obj` and is used to mark
  * a property as optional. E.g.
  *
  * ```ts
@@ -273,7 +282,7 @@ export function Optional<T extends Any>(schema: T): MaybeUndefinedC<T> {
 }
 
 /**
- * This validator offer more control over which string values should
+ * This schema offer more control over which string values should
  * be accepted.
  *
  * The associated type produced is still a `string`.
@@ -404,6 +413,21 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
 
         for (let index = 0; index < value.length; ++index) {
             const res = validateObject(value[index], schema.elementSchema, path + '[' + index + ']', strict);
+            if (res.type === 'error') {
+                return res;
+            }
+        }
+        return success();
+    }
+    if (schema instanceof DictType) {
+        if (value === null) {
+            return error(path, `Expected dictionary got 'null'`);
+        }
+        if (typeofVal !== 'object') {
+            return error(path, `Expected dictionary (object) got '${typeofVal}'`);
+        }
+        for (const prop in value) {
+            const res = validateObject(value[prop], schema.elementSchema, path + '[' + prop + ']', strict);
             if (res.type === 'error') {
                 return res;
             }

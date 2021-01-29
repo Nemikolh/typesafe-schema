@@ -1,4 +1,4 @@
-import { newValidator, TypeOf, Any, SchemaValidator, TRUE, FALSE } from '../src';
+import { newValidator, TypeOf, Any, SchemaValidator, TRUE, FALSE, Dict } from '../src';
 import { Nullable, IGNORE, NUMBER, BOOL, STRING, Enum } from '../src';
 import { EnumObj, Optional, Obj, Arr, Str } from '../src';
 
@@ -147,4 +147,14 @@ function t15() {
     const schema = newValidator(Arr(Obj({ a: STRING, b: NUMBER })));
     // $ExpectType { a: string; b: number; }
     const val = t14(schema);
+}
+
+function t16() {
+    const schema = newValidator(Dict(NUMBER));
+
+    const val = schema.validate(null);
+    if (val.type === 'success') {
+        // $ExpectType { [key: string]: number; }
+        const a = val.value;
+    }
 }
