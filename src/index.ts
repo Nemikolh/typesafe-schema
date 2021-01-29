@@ -426,6 +426,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         if (typeofVal !== 'object') {
             return error(path, `Expected dictionary (object) got '${typeofVal}'`);
         }
+        // tslint:disable-next-line: forin
         for (const prop in value) {
             const res = validateObject(value[prop], schema.elementSchema, path + '[' + prop + ']', strict);
             if (res.type === 'error') {

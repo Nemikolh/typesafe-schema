@@ -1,3 +1,7 @@
+# Version 0.4.6
+
+ No API changes
+
 # Version 0.4.5
 
  * Add support for dictionaries: arbitrary keys with a validated type.
