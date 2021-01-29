@@ -141,3 +141,4 @@ export const device = newValidator(Obj({
 | `EnumObj(...schemas)`                  | `T0 | T1 | ... | TN`    | Make sure value match at least one of schemas.                                                                            |
 | `Obj({ a: schema0, b: schema1, ... })` | `{ a: T0, b: T1, ... }` | Make sure value is an object with at least all expected properties.                                                       |
 | `Arr(schema)`                          | `T[]`                   | Make sure value is an array with all elements matching schema.                                                            |
+| `Dict(schema)`                         | `{ [key: string]: T }`  | Make sure value is an array with all elements matching schema.                                                            |
