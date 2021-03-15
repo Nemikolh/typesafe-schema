@@ -1,3 +1,7 @@
+# Version 0.4.7
+
+ * Render null as 'null'
+
 # Version 0.4.6
 
  No API changes

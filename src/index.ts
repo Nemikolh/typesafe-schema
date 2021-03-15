@@ -367,13 +367,13 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         return error(path, 'value is undefined');
     }
     if (schema instanceof ValType) {
-        return iferror(schema.val === value, path, `Got '${value}', expected '${schema.val}'`);
+        return iferror(schema.val === value, path, `Got ${value === null ? 'null' : `'${value}'`}, expected '${schema.val}'`);
     }
     if (schema instanceof MatchRegexType) {
         if (typeofVal === 'string') {
             return iferror(schema.regex.test(value), path, `'${value}' did not match '${schema.regex}'`);
         } else {
-            return error(path, `Got ${typeofVal}, expected string.`);
+            return error(path, `Got ${value === null ? 'null' : typeofVal}, expected string.`);
         }
     }
     if (schema instanceof EnumType) {
@@ -398,17 +398,17 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         return validateObject(value, schema.schema, path + '?', strict);
     }
     if (schema === STRING) {
-        return iferror(typeofVal === 'string', path, `Got ${typeofVal}, expected string`);
+        return iferror(typeofVal === 'string', path, `Got ${value === null ? 'null' : typeofVal}, expected string`);
     }
     if (schema === BOOL) {
-        return iferror(typeofVal === 'boolean', path, `Got ${typeofVal}, expected boolean`);
+        return iferror(typeofVal === 'boolean', path, `Got ${value === null ? 'null' : typeofVal}, expected boolean`);
     }
     if (schema === NUMBER) {
-        return iferror(typeofVal === 'number', path, `Got ${typeofVal}, expected number`);
+        return iferror(typeofVal === 'number', path, `Got ${value === null ? 'null' : typeofVal}, expected number`);
     }
     if (schema instanceof ArrayType) {
         if (!Array.isArray(value)) {
-            return error(path, `Expected array.`);
+            return error(path, `Got ${value === null ? 'null' : typeofVal}, expected array.`);
         }
 
         for (let index = 0; index < value.length; ++index) {
@@ -421,10 +421,10 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
     }
     if (schema instanceof DictType) {
         if (value === null) {
-            return error(path, `Expected dictionary got 'null'`);
+            return error(path, `Got null, expected dictionary`);
         }
         if (typeofVal !== 'object') {
-            return error(path, `Expected dictionary (object) got '${typeofVal}'`);
+            return error(path, `Got ${typeofVal}, expected dictionary`);
         }
         // tslint:disable-next-line: forin
         for (const prop in value) {
@@ -437,10 +437,10 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
     }
     if (schema instanceof InterfaceType) {
         if (value === null) {
-            return error(path, `Expected object got 'null'`);
+            return error(path, `Got null, expected object`);
         }
         if (typeofVal !== 'object') {
-            return error(path, `Expected object got '${typeofVal}'`);
+            return error(path, `Got ${typeofVal}, expected object`);
         }
         // Strict mode: no extra properties allowed.
         if (strict) {

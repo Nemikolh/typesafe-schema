@@ -1,4 +1,4 @@
-import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict } from '../src';
+import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict, BOOL } from '../src';
 import { STRING, NUMBER } from '../src';
 
 describe('Enum', () => {
@@ -160,12 +160,12 @@ describe('Obj', () => {
         expect(schema.validate('test')).toEqual({
             type: 'error',
             path: '',
-            reason: `Expected object got 'string'`,
+            reason: `Got string, expected object`,
         });
         expect(schema.validate(2342)).toEqual({
             type: 'error',
             path: '',
-            reason: `Expected object got 'number'`,
+            reason: `Got number, expected object`,
         });
     });
 });
@@ -228,4 +228,71 @@ describe('Dictionary', () => {
         });
     });
 
+});
+
+describe('null', () => {
+
+    it('should show null instead of object when matching a string', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: STRING }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: 'Got null, expected string',
+        });
+    });
+
+    it('should show null instead of object when matching a boolean', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: BOOL }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: 'Got null, expected boolean',
+        });
+    });
+
+    it('should show null instead of object when matching a boolean', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: NUMBER }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: 'Got null, expected number',
+        });
+    });
+
+    it('should show null instead of object when matching a array', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: Arr(STRING) }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: 'Got null, expected array.',
+        });
+    });
+
+    it('should show null instead of object when matching an object', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: Obj({ test: STRING }) }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: 'Got null, expected object',
+        });
+    });
+
+    it('should show null instead of object when matching an enum', () => {
+        const value = { someprop: null };
+        const schema = newValidator(Obj({ someprop: Enum('foo', 'bar') }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.someprop',
+            reason: [
+                'None of the variant matched null, errors:',
+                `  Got null, expected 'foo'`,
+                `  Got null, expected 'bar'`,
+            ].join('\n'),
+        });
+    });
 });
