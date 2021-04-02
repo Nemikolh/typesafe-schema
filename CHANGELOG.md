@@ -1,3 +1,7 @@
+# Version 0.4.8
+
+ * Augment type limit for Enum and EnumObj to accept up to 8 values
+
 # Version 0.4.7
 
  * Render null as 'null'

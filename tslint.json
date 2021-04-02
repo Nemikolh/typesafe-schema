@@ -12,6 +12,7 @@
         "interface-name": false,
         "arrow-parens": false,
         "no-consecutive-blank-lines": false,
+        "max-line-length": false,
         "semicolon": [true, "always", "ignore-interfaces"],
         "array-type": [true, "array"],
         "quotemark": [true, "single"]

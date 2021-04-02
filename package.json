@@ -1,6 +1,6 @@
 {
     "name": "typesafe-schema",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "description": "Validate your data and get a well typed value out of it!",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",

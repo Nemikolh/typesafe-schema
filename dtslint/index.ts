@@ -44,6 +44,21 @@ function t12() {
     const val = newValidator(Enum('a', 'b', 'c')).validate(null);
 }
 
+function t17() {
+    // $ExpectType SchemaValidationResult<"a" | "b" | "c" | "d" | "e" | "f">
+    const val = newValidator(Enum('a', 'b', 'c', 'd', 'e', 'f')).validate(null);
+}
+
+function t19() {
+    // $ExpectType SchemaValidationResult<"a" | "b" | "c" | "d" | "e" | "f" | "g" | "h">
+    const val = newValidator(Enum('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')).validate(null);
+}
+
+function t20() {
+    // $ExpectType SchemaValidationResult<string>
+    const val = newValidator(Enum('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')).validate(null);
+}
+
 // Advanced schema
 
 function t1() {
@@ -155,6 +170,31 @@ function t16() {
     const val = schema.validate(null);
     if (val.type === 'success') {
         // $ExpectType { [key: string]: number; }
+        const a = val.value;
+    }
+}
+
+function t18() {
+    const schema = newValidator(EnumObj(Obj({
+        a: Obj({
+            b: Obj({
+                d: Obj({
+                    e: Obj({
+                        f: Enum('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
+                    })
+                }),
+                g: STRING,
+                e: STRING,
+                a: NUMBER,
+            })
+        })
+    }), Obj({
+        g: STRING,
+    })));
+
+    const val = schema.validate(null);
+    if (val.type === 'success') {
+        // $ExpectType { a: { b: { d: { e: { f: "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h"; }; }; g: string; e: string; a: number; }; }; } | { g: string; }
         const a = val.value;
     }
 }

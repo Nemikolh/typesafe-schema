@@ -159,12 +159,20 @@ interface TypeC<P extends Props> extends InterfaceType<P, { [K in keyof P]: Type
 interface EnumC<E extends [Any, ...Any[]]> extends EnumType<E, E extends [Any] ? TypeOf<E[0]>
     : E extends [Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]>)
     : E extends [Any, Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]> | TypeOf<E[2]>)
+    : E extends [Any, Any, Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]> | TypeOf<E[2]> | TypeOf<E[3]>)
+    : E extends [Any, Any, Any, Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]> | TypeOf<E[2]> | TypeOf<E[3]> | TypeOf<E[4]>)
+    : E extends [Any, Any, Any, Any, Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]> | TypeOf<E[2]> | TypeOf<E[3]> | TypeOf<E[4]> | TypeOf<E[5]>)
     : unknown> {}
 interface EnumStringC<S extends [string, ...string[]]> extends EnumType<ArrayType<StringType, any>,
     S extends [string] ? S[0]
     : S extends [string, string] ? (S[0] | S[1])
     : S extends [string, string, string] ? (S[0] | S[1] | S[2])
-    : unknown> {}
+    : S extends [string, string, string, string] ? (S[0] | S[1] | S[2] | S[3])
+    : S extends [string, string, string, string, string] ? (S[0] | S[1] | S[2] | S[3] | S[4])
+    : S extends [string, string, string, string, string, string] ? (S[0] | S[1] | S[2] | S[3] | S[4] | S[5])
+    : S extends [string, string, string, string, string, string, string] ? (S[0] | S[1] | S[2] | S[3] | S[4] | S[5] | S[6])
+    : S extends [string, string, string, string, string, string, string, string] ? (S[0] | S[1] | S[2] | S[3] | S[4] | S[5] | S[6] | S[7])
+    : string> {}
 
 
 // Validation types
