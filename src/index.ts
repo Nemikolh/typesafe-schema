@@ -1,5 +1,7 @@
 /* tslint:disable:max-classes-per-file */
 
+import { TypeSafeFormatter } from './fmt';
+
 /**
  * Some explanation before you start reading the code.
  *
@@ -183,19 +185,19 @@ interface EnumStringC<S extends [string, ...string[]]> extends EnumType<ArrayTyp
 
 // Validation types
 export interface ValidationSuccess { type: 'success' }
-export interface ValidationError {
+export type ValidationError<R> = {
     type: 'error'
-    path: string
-    reason: string
-}
-export type ValidationResult = ValidationSuccess | ValidationError;
+    // path: string
+    // reason: string
+} & R;
+export type ValidationResult<R> = ValidationSuccess | ValidationError<R>;
 
-export type Validator<T> = (value: any, strict?: boolean) => SchemaValidationResult<T>;
-export interface SchemaValidator<T extends Any, G extends TypeOf<T> = TypeOf<T>> {
-    validate: Validator<G>
+export type Validator<T, R> = (value: any, strict?: boolean) => SchemaValidationResult<T, R>;
+export interface SchemaValidator<T extends Any, R, G extends TypeOf<T> = TypeOf<T>> {
+    validate: Validator<G, R>
     schema: T
 }
-export type SchemaValidationResult<T> = { type: 'success', value: T } | ValidationError;
+export type SchemaValidationResult<T, R> = { type: 'success', value: T } | ValidationError<R>;
 
 /**
  * Create a schema validator that can be used to validate data obtained from a request
@@ -207,10 +209,14 @@ export type SchemaValidationResult<T> = { type: 'success', value: T } | Validati
  *   - The data source doesn't need to be JSON, but the parsed version needs to be a POJO.
  *
  * @param schema schema desribing the shape of the valid data
+ * @param fmt error formatter
  */
-export function newValidator<T extends Any>(schema: T): SchemaValidator<T> {
-    const validate: Validator<TypeOf<T>> = (value, strict) => {
-        const res = validateObject(value, schema, '', strict || false);
+export function newValidator<T extends Any, R, Fmt extends TypeSafeFormatter<R>>(
+    schema: T, 
+    fmt: Fmt = defaultFormatter,
+): SchemaValidator<T, R> {
+    const validate: Validator<TypeOf<T>, R> = (value, strict) => {
+        const res = validateObject(value, schema, '', strict || false, fmt);
         if (res.type === 'error') {
             return res;
         }
@@ -381,7 +387,13 @@ export const NUMBER = new NumberType();
 
 
 // The runtime function doing all the hard-work (all the above is only compile-time shenanigans)
-function validateObject<T extends Any>(value: any, schema: T, path: string, strict: boolean): ValidationResult {
+function validateObject<T extends Any, R, Fmt extends TypeSafeFormatter<R>>(
+    value: any,
+    schema: T,
+    path: string,
+    strict: boolean,
+    fmt: Fmt,
+): ValidationResult<R> {
     const typeofVal = typeof value;
     if (schema === IGNORE) {
         return success();
@@ -390,7 +402,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         if (typeofVal === 'undefined') {
             return success();
         }
-        return validateObject(value, schema.schema, path + '!', strict);
+        return validateObject(value, schema.schema, path + '!', strict, fmt);
     }
     if (typeofVal === 'undefined') {
         return error(path, 'value is undefined');
@@ -408,7 +420,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
     if (schema instanceof EnumType) {
         const possibleResults = [];
         for (const subSchema of schema.possibleValues) {
-            const res = validateObject(value, subSchema, path, strict);
+            const res = validateObject(value, subSchema, path, strict, fmt);
             if (res.type === 'success') {
                 return res;
             }
@@ -421,7 +433,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         );
     }
     if (schema instanceof MinLengthType) {
-        const res = validateObject(value, schema.schema, path, strict);
+        const res = validateObject(value, schema.schema, path, strict, fmt);
         const minLength = schema.length;
         if (res.type === 'success') {
             if (typeofVal === 'string') {
@@ -451,7 +463,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         if (value === null) {
             return success();
         }
-        return validateObject(value, schema.schema, path + '?', strict);
+        return validateObject(value, schema.schema, path + '?', strict, fmt);
     }
     if (schema === STRING as any) {
         return iferror(typeofVal === 'string', path, `Got ${value === null ? 'null' : typeofVal}, expected string`);
@@ -468,7 +480,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         }
 
         for (let index = 0; index < value.length; ++index) {
-            const res = validateObject(value[index], schema.elementSchema, path + '[' + index + ']', strict);
+            const res = validateObject(value[index], schema.elementSchema, path + '[' + index + ']', strict, fmt);
             if (res.type === 'error') {
                 return res;
             }
@@ -484,7 +496,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         }
         // tslint:disable-next-line: forin
         for (const prop in value) {
-            const res = validateObject(value[prop], schema.elementSchema, path + '[' + prop + ']', strict);
+            const res = validateObject(value[prop], schema.elementSchema, path + '[' + prop + ']', strict, fmt);
             if (res.type === 'error') {
                 return res;
             }
@@ -509,7 +521,7 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         // Properties that are not in schema are ignored
         for (const prop in schema.props) {
             if (prop in value || schema.props[prop] instanceof MaybeUndefinedType) {
-                const res = validateObject(value[prop], schema.props[prop], path + '.' + prop, strict);
+                const res = validateObject(value[prop], schema.props[prop], path + '.' + prop, strict, fmt);
                 if (res.type === 'error') {
                     return res;
                 }

@@ -1,3 +1,15 @@
+# Version 0.5.0
+
+This version introduce formatters to allow you to customize the output returned by
+the validate function.
+
+Two formatters are introduced:
+
+ * `defaultFmt`, this render errors the same way as it was done in 0.4.x
+ * `prettyFmt`, a new (subjectively) better formatter for errors that should play nicely with React and similar frontend frameworks.
+
+To create your own formatter you need to create a type that implements the `TypeSafeSchemaFormatter` interface.
+
 # Version 0.4.9
 
  * Add `MinLength` helper to require a field to have a minimum length.
