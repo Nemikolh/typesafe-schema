@@ -1,4 +1,4 @@
-import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict, BOOL } from '../src';
+import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict, BOOL, MinLength } from '../src';
 import { STRING, NUMBER } from '../src';
 
 describe('Enum', () => {
@@ -293,6 +293,77 @@ describe('null', () => {
                 `  Got null, expected 'foo'`,
                 `  Got null, expected 'bar'`,
             ].join('\n'),
+        });
+    });
+});
+
+describe('MinLength', () => {
+
+
+    it('should show null error if the value is null', () => {
+        const schema = newValidator(MinLength(STRING, 12));
+        const value = null;
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '',
+            reason: 'Got null, expected string',
+        });
+    });
+
+    it('should reject is string is not long enough', () => {
+        const schema = newValidator(MinLength(STRING, 12));
+        const value = 'foobar';
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '',
+            reason: `'foobar' does not satisfy the minimum length requirement (12)`,
+        });
+    });
+
+    it('should reject if array is not long enough', () => {
+        const schema = newValidator(MinLength(Arr(STRING), 12));
+        const value = ['foobar'];
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '',
+            reason: `'["foobar"]' does not satisfy the minimum length requirement (12)`,
+        });
+    });
+
+    it('should reject if dict is not long enough', () => {
+        const schema = newValidator(MinLength(Dict(STRING), 12));
+        const value = { a: 'foobar' };
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '',
+            reason: `'{"a":"foobar"}' does not satisfy the minimum length requirement (12)`,
+        });
+    });
+
+    it('should accept valid values for string', () => {
+        const schema = newValidator(MinLength(STRING, 6));
+        const value = 'foobar';
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
+        });
+    });
+
+    it('should accept valid values for dict', () => {
+        const schema = newValidator(MinLength(Arr(STRING), 1));
+        const value = ['foobar'];
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
+        });
+    });
+
+    it('should accept valid values for array', () => {
+        const schema = newValidator(MinLength(Dict(STRING), 2));
+        const value = { a: 'foobar', b: '', c: '' };
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
         });
     });
 });

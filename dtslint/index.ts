@@ -1,6 +1,6 @@
 import { newValidator, TypeOf, Any, SchemaValidator, TRUE, FALSE, Dict } from '../src';
 import { Nullable, IGNORE, NUMBER, BOOL, STRING, Enum } from '../src';
-import { EnumObj, Optional, Obj, Arr, Str } from '../src';
+import { EnumObj, Optional, Obj, Arr, Str, MinLength } from '../src';
 
 // Basic types
 
@@ -195,6 +195,31 @@ function t18() {
     const val = schema.validate(null);
     if (val.type === 'success') {
         // $ExpectType { a: { b: { d: { e: { f: "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h"; }; }; g: string; e: string; a: number; }; }; } | { g: string; }
+        const a = val.value;
+    }
+}
+
+function t21() {
+    // $ExpectError
+    newValidator(MinLength(NUMBER, 12));
+    // $ExpectError
+    newValidator(MinLength(Nullable(STRING), 12));
+    // $ExpectError
+    newValidator(MinLength(Obj({}), 12));
+    // $ExpectError
+    newValidator(MinLength(IGNORE, 12));
+    // $ExpectError
+    newValidator(MinLength(NUMBER, 12));
+    newValidator(MinLength(STRING, 12));
+    newValidator(MinLength(Arr(NUMBER), 12));
+    newValidator(MinLength(Dict(Obj({})), 12));
+}
+
+function t22() {
+    const schema = newValidator(Nullable(MinLength(STRING, 12)));
+    const val = schema.validate(null);
+    if (val.type === 'success') {
+        // $ExpectType string | null
         const a = val.value;
     }
 }

@@ -126,11 +126,16 @@ class SchemaType<O> {
     readonly _O!: O;
 }
 
+// Traits to differentiate types
+interface HasLengthType {
+    _sl: unknown;
+}
+
 // Guards (used by the runtime validator)
 class NumberType extends SchemaType<number> {}
 class BooleanType extends SchemaType<boolean> {}
 class IgnoreType extends SchemaType<unknown> {}
-class StringType extends SchemaType<string> {}
+class StringType extends SchemaType<string> implements HasLengthType { _sl: unknown; }
 class MatchRegexType extends SchemaType<string> { constructor(public regex: RegExp) { super(); } }
 class ValType<V> extends SchemaType<V> { constructor(public val: V) { super(); } }
 class StringValType<S extends string> extends ValType<S> { constructor(val: S) { super(val); } }
@@ -138,9 +143,10 @@ class NumberValType<N extends number> extends ValType<N> { constructor(val: N) {
 class InterfaceType<P, O> extends SchemaType<O> { constructor(public props: P) { super(); } }
 class NullableType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class MaybeUndefinedType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
-class ArrayType<E, O> extends SchemaType<O> { constructor(public elementSchema: E) { super(); } }
-class DictType<E, O> extends SchemaType<O> { constructor(public elementSchema: E) { super(); } }
+class ArrayType<E, O> extends SchemaType<O> implements HasLengthType { _sl: unknown; constructor(public elementSchema: E) { super(); } }
+class DictType<E, O> extends SchemaType<O> implements HasLengthType { _sl: unknown; constructor(public elementSchema: E) { super(); } }
 class EnumType<E, O> extends SchemaType<O> { constructor(public possibleValues: E) { super(); } }
+class MinLengthType<O> extends SchemaType<O> { constructor(public schema: O, public length: number) { super(); } }
 
 // Type utils
 export interface Any extends SchemaType<any> {}    // Not needed but make the code more readable
@@ -290,6 +296,21 @@ export function Optional<T extends Any>(schema: T): MaybeUndefinedC<T> {
 }
 
 /**
+ * This schema can be applied to STRING, Arr(..) or Dict(...) to only
+ * allowed values that have a minimum length.
+ *
+ *   - For string values it correspond to the string length property
+ *   - For arrays values it correspond to the array length property
+ *   - For dictionaries it correspond to `Object.keys(val).length`
+ *
+ * @param schema type of the value that needs to have a minimum length
+ * @param length minimum length required.
+ */
+export function MinLength<T extends Any & HasLengthType>(schema: T, length: number): MinLengthType<TypeOf<T>> {
+    return new MinLengthType(schema, length);
+}
+
+/**
  * This schema offer more control over which string values should
  * be accepted.
  *
@@ -399,13 +420,40 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
             `None of the variant matched ${JSON.stringify(value)}, errors:\n  ${trace}`,
         );
     }
+    if (schema instanceof MinLengthType) {
+        const res = validateObject(value, schema.schema, path, strict);
+        const minLength = schema.length;
+        if (res.type === 'success') {
+            if (typeofVal === 'string') {
+                if (value.length < minLength) {
+                    return error(
+                        path,
+                        `'${value}' does not satisfy the minimum length requirement (${minLength})`,
+                    );
+                }
+            } else if (Array.isArray(value)) {
+                if (value.length < minLength) {
+                    return error(
+                        path,
+                        `'${JSON.stringify(value)}' does not satisfy the minimum length requirement (${minLength})`,
+                    );
+                }
+            } else if (Object.keys(value).length < minLength) {
+                return error(
+                    path,
+                    `'${JSON.stringify(value)}' does not satisfy the minimum length requirement (${minLength})`,
+                );
+            }
+        }
+        return res;
+    }
     if (schema instanceof NullableType) {
         if (value === null) {
             return success();
         }
         return validateObject(value, schema.schema, path + '?', strict);
     }
-    if (schema === STRING) {
+    if (schema === STRING as any) {
         return iferror(typeofVal === 'string', path, `Got ${value === null ? 'null' : typeofVal}, expected string`);
     }
     if (schema === BOOL) {
