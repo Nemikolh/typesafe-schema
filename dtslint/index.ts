@@ -1,6 +1,6 @@
 import { newValidator, TypeOf, Any, SchemaValidator, TRUE, FALSE, Dict } from '../src';
 import { Nullable, IGNORE, NUMBER, BOOL, STRING, Enum } from '../src';
-import { EnumObj, Optional, Obj, Arr, Str, MinLength } from '../src';
+import { EnumObj, MaybeUndefined, ObjWithOptional, Obj, Arr, Str, MinLength } from '../src';
 
 // Basic types
 
@@ -72,12 +72,28 @@ function t1() {
 }
 
 function t2() {
-    const val = newValidator(Obj({ a: Optional(STRING), b: NUMBER })).validate(null);
+    const val = newValidator(Obj({ a: MaybeUndefined(STRING), b: NUMBER })).validate(null);
     if (val.type === 'success') {
         // $ExpectType string | undefined
         val.value.a;
         // $ExpectType number
         val.value.b;
+    }
+}
+
+function t23() {
+    const val = newValidator(ObjWithOptional({}, { a: MaybeUndefined(STRING), b: NUMBER })).validate(null);
+    if (val.type === 'success') {
+        // $ExpectType {} & { a?: string | undefined; b?: number; }
+        val.value;
+    }
+}
+
+function t24() {
+    const val = newValidator(ObjWithOptional({ b: NUMBER }, { a: MaybeUndefined(STRING) })).validate(null);
+    if (val.type === 'success') {
+        // $ExpectType { b: number; } & { a?: string | undefined; }
+        val.value;
     }
 }
 

@@ -1,5 +1,5 @@
 import { newValidator, Enum, EnumObj, Obj, Arr, MatchRegex, TRUE, FALSE, Dict, BOOL, MinLength } from '../src';
-import { STRING, NUMBER } from '../src';
+import { STRING, NUMBER, ObjWithOptional, MaybeUndefined } from '../src';
 
 describe('Enum', () => {
 
@@ -217,7 +217,7 @@ describe('Dictionary', () => {
             'other prop': { a: 'wut' },
         };
 
-        expect(schema.validate(value)).toEqual({ 
+        expect(schema.validate(value)).toEqual({
             type: 'error',
             path: '[other prop].a',
             reason: [
@@ -361,6 +361,72 @@ describe('MinLength', () => {
     it('should accept valid values for array', () => {
         const schema = newValidator(MinLength(Dict(STRING), 2));
         const value = { a: 'foobar', b: '', c: '' };
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
+        });
+    });
+});
+
+describe('Optional', () => {
+
+    it('should allow properties to be missing', () => {
+        const value = {};
+        const schema = newValidator(ObjWithOptional({}, { a: STRING }));
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
+        });
+    });
+
+    it('should reject if non-optional properties are missing', () => {
+        const value = {};
+        const schema = newValidator(ObjWithOptional({ a: NUMBER }, { b: NUMBER }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '',
+            reason: [
+                `Missing property 'a' in '{}'`,
+            ].join('\n'),
+        });
+    });
+
+    it('should reject if optional proerties are of the wrong type', () => {
+        const value = { a: 123, b: '123' };
+        const schema = newValidator(ObjWithOptional({ a: NUMBER }, { b: NUMBER }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.b',
+            reason: [
+                `Got string, expected number`,
+            ].join('\n'),
+        });
+    });
+
+    it('should accept if both optional proerty and non-optional have correct type', () => {
+        const value = { a: 123, b: 123 };
+        const schema = newValidator(ObjWithOptional({ a: NUMBER }, { b: NUMBER }));
+        expect(schema.validate(value)).toEqual({
+            type: 'success',
+            value,
+        });
+    });
+
+    it('should reject undefined as a value for optional properties', () => {
+        const value = { a: 123, b: undefined };
+        const schema = newValidator(ObjWithOptional({ a: NUMBER }, { b: NUMBER }));
+        expect(schema.validate(value)).toEqual({
+            type: 'error',
+            path: '.b',
+            reason: [
+                `value is undefined`,
+            ].join('\n'),
+        });
+    });
+
+    it('should accept undefined if optional property is marked as such', () => {
+        const value = { a: 123, b: undefined };
+        const schema = newValidator(ObjWithOptional({ a: NUMBER }, { b: MaybeUndefined(NUMBER) }));
         expect(schema.validate(value)).toEqual({
             type: 'success',
             value,

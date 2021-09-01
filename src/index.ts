@@ -141,6 +141,8 @@ class ValType<V> extends SchemaType<V> { constructor(public val: V) { super(); }
 class StringValType<S extends string> extends ValType<S> { constructor(val: S) { super(val); } }
 class NumberValType<N extends number> extends ValType<N> { constructor(val: N) { super(val); } }
 class InterfaceType<P, O> extends SchemaType<O> { constructor(public props: P) { super(); } }
+class OptionalInterfaceType<P, O> extends InterfaceType<P, O> { constructor(props: P) { super(props); } }
+class ConcatType<A, B, O> extends SchemaType<O> { constructor(public a: A, public b: B) { super(); } }
 class NullableType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class MaybeUndefinedType<E, O> extends SchemaType<O> { constructor(public schema: E) { super(); } }
 class ArrayType<E, O> extends SchemaType<O> implements HasLengthType { _sl: unknown; constructor(public elementSchema: E) { super(); } }
@@ -161,6 +163,8 @@ interface MaybeUndefinedC<E extends Any> extends MaybeUndefinedType<E, TypeOf<E>
 interface ArrayC<E extends Any> extends ArrayType<E, TypeOf<E>[]> {}
 interface DictC<E extends Any> extends DictType<E, { [key: string]: TypeOf<E> }> {}
 interface TypeC<P extends Props> extends InterfaceType<P, { [K in keyof P]: TypeOf<P[K]> }> {}
+interface OptionalC<P extends Props> extends InterfaceType<P, { [K in keyof P]?: TypeOf<P[K]> }> {}
+interface ConcatC<A extends Any, B extends Any> extends ConcatType<A, B, TypeOf<A> & TypeOf<B>> {}
 // Note: Replace that once typescript support cleaner variadic types
 interface EnumC<E extends [Any, ...Any[]]> extends EnumType<E, E extends [Any] ? TypeOf<E[0]>
     : E extends [Any, Any] ? (TypeOf<E[0]> | TypeOf<E[1]>)
@@ -278,20 +282,39 @@ export function Nullable<T extends Any>(schema: T): NullableC<T> {
 }
 
 /**
- * This schema constructor can only be used within an `Obj` and is used to mark
- * a property as optional. E.g.
+ * This schema constructor is similar to `Obj` but it turns all its
+ * properties into optional properties.
+ *
+ * ```ts
+ * // This validate object with the shape: {}
+ * export const a = newValidator(Optional({
+ *     b: STRING,
+ * }));
+ * ```
+ * @param schema type of the property when defined
+ */
+export function ObjWithOptional<P extends Props, PO extends Props>(props: P, optionalProps: PO): ConcatC<TypeC<P>, OptionalC<PO>> {
+    return new ConcatType(
+        new InterfaceType(props),
+        new OptionalInterfaceType(optionalProps),
+    );
+}
+
+/**
+ * This schema constructor can be used to mark a value as
+ * possibly undefined. E.g.
  *
  * ```ts
  * //                                ~~~~ This brace means that we expect a defined
  * //                                |    object with either a property named 'b' that maps to string or undefined,
  * //                                v    or an empty object.
- * export const a = newValidator(Obj({
- *     b: Optional(String),
- * }));
+ * export const a = newValidator(MaybeUndefined(Obj({
+ *     b: STRING,
+ * })));
  * ```
- * @param schema type of the property when non-null
+ * @param schema type of the value when non-undefined
  */
-export function Optional<T extends Any>(schema: T): MaybeUndefinedC<T> {
+export function MaybeUndefined<T extends Any>(schema: T): MaybeUndefinedC<T> {
     return new MaybeUndefinedType(schema);
 }
 
@@ -491,6 +514,14 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         }
         return success();
     }
+    if (schema instanceof ConcatType) {
+        const { a, b } = schema;
+        const res = validateObject(value, a, path, strict);
+        if (res.type === 'error') {
+            return res;
+        }
+        return validateObject(value, b, path, strict);
+    }
     if (schema instanceof InterfaceType) {
         if (value === null) {
             return error(path, `Got null, expected object`);
@@ -508,12 +539,12 @@ function validateObject<T extends Any>(value: any, schema: T, path: string, stri
         }
         // Properties that are not in schema are ignored
         for (const prop in schema.props) {
-            if (prop in value || schema.props[prop] instanceof MaybeUndefinedType) {
+            if (prop in value) {
                 const res = validateObject(value[prop], schema.props[prop], path + '.' + prop, strict);
                 if (res.type === 'error') {
                     return res;
                 }
-            } else {
+            } else if (!(schema instanceof OptionalInterfaceType)) {
                 return error(path, `Missing property '${prop}' in '${JSON.stringify(value)}'`);
             }
         }
