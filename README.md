@@ -1,4 +1,4 @@
-# Typesafe-schema [![Build Status](https://travis-ci.org/Nemikolh/typesafe-schema.svg?branch=master)](https://travis-ci.org/Nemikolh/typesafe-schema) ![](https://img.shields.io/badge/TypeScript-%3E3.0-green)
+# Typesafe-schema ![](https://img.shields.io/badge/TypeScript-%3E3.0-green)
 
 Typesafe-schema allows you to validate a plain old JavaScript object against
 a schema and obtained a well typed value in return.
@@ -30,7 +30,7 @@ yarn add -S -E typesafe-schema
 
 Typesafe-schema provide more type safety if your TypeScript `strict` flag is set to
 `true` in your `tsconfig.json`. You can still use this library without this option,
-but some schema modifiers such as `Optional` and `Nullable` loose their benefit from
+but some schema modifiers such as `MaybeUndefined` and `Nullable` loose their benefit from
 a type checking point of view.
 
 An example is always worth a thousand words:
@@ -102,14 +102,14 @@ function doRequest() {
 Schema can also be reused:
 
 ```ts
-import { Enum, Arr, Obj, STRING, NUMBER, Str } from 'typesafe-schema';
+import { MaybeUndefined, Enum, Arr, Obj, STRING, NUMBER, Str } from 'typesafe-schema';
 import { newValidator } from 'typesafe-schema';
 
 export const user = newValidator(Obj({
     id: NUMBER,
     name: STRING,
     role: Enum('admin', 'regular', 'bot'),
-    apiKey: Optional(STRING),
+    apiKey: MaybeUndefined(STRING),
 }));
 
 // Each element in the list must satisfy the user schema.
@@ -135,10 +135,11 @@ export const device = newValidator(Obj({
 | `Num(val)`                             | `<numeric literal>`     | Make sure value is equal to val. TypeScript type will be the numeric literal type associated with the value (e.g '0')     |
 | `Str(val)`                             | `<string literal>`      | Make sure value is equal to val. TypeScript type will be the string literal type associated with the value (e.g 'foobar') |
 | `MatchRegex(re)`                       | `string`                | Make sure value match `re`.                                                                                               |
-| `Enum('foo', 'bar')`                   | `'foo' | 'bar'`         | Shortend for `EnumObj(Str('foo'), Str('bar'))`                                                                            |
-| `Optional(schema)`                     | `T | undefined`         | Make sure value is either undefined or match schema.                                                                      |
-| `Nullable(schema)`                     | `T | null`              | Make sure value is either null or match schema.                                                                           |
-| `EnumObj(...schemas)`                  | `T0 | T1 | ... | TN`    | Make sure value match at least one of schemas.                                                                            |
+| `Enum('foo', 'bar')`                   | `'foo' \| 'bar'`         | Shortend for `EnumObj(Str('foo'), Str('bar'))`                                                                            |
+| `MaybeUndefined(schema)`               | `T \| undefined`         | Make sure value is either undefined or match schema.                                                                      |
+| `Nullable(schema)`                     | `T \| null`              | Make sure value is either null or match schema.                                                                           |
+| `EnumObj(...schemas)`                  | `T0 \| T1 \| ... \| TN`    | Make sure value match at least one of schemas.                                                                            |
 | `Obj({ a: schema0, b: schema1, ... })` | `{ a: T0, b: T1, ... }` | Make sure value is an object with at least all expected properties.                                                       |
+| `ObjWithOptional({ a: ... }, { b: ...})` | `{ a: T0 ... } & { b?: T1, ... }` | Make sure value is an object with at least all expected properties.                                                       |
 | `Arr(schema)`                          | `T[]`                   | Make sure value is an array with all elements matching schema.                                                            |
 | `Dict(schema)`                         | `{ [key: string]: T }`  | Make sure value is an array with all elements matching schema.                                                            |
