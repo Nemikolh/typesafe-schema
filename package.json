@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "repository": "git@github.com:Nemikolh/typesafe-schema.git",
+    "keywords": ["schema", "JSON", "validation", "typescript", "typesafe"],
     "author": "Nemikolh",
     "license": "MIT",
     "scripts": {
